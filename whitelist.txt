@@ -1,0 +1,6 @@
+# Autoban IP Whitelist - one IP per line
+# IPs listed here will NEVER be banned
+# Add your own IPs, server IPs, monitoring IPs, etc.
+
+# e.g.
+# 123.123.123.123
