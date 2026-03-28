@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-IPSET=/usr/sbin/ipset
-IPTABLES=/usr/sbin/iptables
+IPSET=$(command -v ipset || echo /sbin/ipset)
+IPTABLES=$(command -v iptables || echo /sbin/iptables)
 IPSET_NAME="autoban"
 BAN_LOG="/var/log/autoban.log"
 

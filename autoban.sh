@@ -9,8 +9,8 @@
 set -euo pipefail
 
 # --- Full paths (cron doesn't have /usr/sbin in PATH) ---
-IPSET=/usr/sbin/ipset
-IPTABLES=/usr/sbin/iptables
+IPSET=$(command -v ipset || echo /sbin/ipset)
+IPTABLES=$(command -v iptables || echo /sbin/iptables)
 
 # --- Configuration ---
 CONF_DIR="/etc/autoban"

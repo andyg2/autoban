@@ -6,8 +6,8 @@
 
 set -euo pipefail
 
-IPSET=/usr/sbin/ipset
-IPTABLES=/usr/sbin/iptables
+IPSET=$(command -v ipset || echo /sbin/ipset)
+IPTABLES=$(command -v iptables || echo /sbin/iptables)
 IPSET_NAME="autoban"
 SAVE_FILE="/etc/autoban/ipset-autoban.save"
 BAN_DURATION=86400

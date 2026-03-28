@@ -9,8 +9,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INSTALL_DIR="/etc/autoban"
-IPSET=/usr/sbin/ipset
-IPTABLES=/usr/sbin/iptables
+IPSET=$(command -v ipset || echo /sbin/ipset)
+IPTABLES=$(command -v iptables || echo /sbin/iptables)
 
 echo "=== Installing Autoban ==="
 
