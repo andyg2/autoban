@@ -1,8 +1,9 @@
 #!/bin/bash
 # autoban-status.sh - View autoban status, recent bans, and manage the blocklist
 # Usage:
-#   autoban-status.sh              - Show summary
+#   autoban-status.sh              - Show summary + usage
 #   autoban-status.sh list         - List all currently banned IPs
+#   autoban-status.sh ban IP       - Manually ban an IP
 #   autoban-status.sh unban IP     - Remove an IP from the ban list
 #   autoban-status.sh flush        - Remove ALL bans (use with caution)
 #   autoban-status.sh test IP      - Check if an IP is currently banned
@@ -14,6 +15,7 @@ IPSET=$(command -v ipset || echo /sbin/ipset)
 IPTABLES=$(command -v iptables || echo /sbin/iptables)
 IPSET_NAME="autoban"
 BAN_LOG="/var/log/autoban.log"
+BAN_DURATION=86400
 
 case "${1:-summary}" in
     summary|status)
@@ -29,6 +31,34 @@ case "${1:-summary}" in
             tail -10 "$BAN_LOG" 2>/dev/null || echo "(no ban log yet)"
         else
             echo "ipset '$IPSET_NAME' does not exist. Run autoban.sh first."
+        fi
+        echo ""
+        echo "Usage:"
+        echo "  autoban              - Show this summary"
+        echo "  autoban list         - List all banned IPs"
+        echo "  autoban ban IP       - Manually ban an IP"
+        echo "  autoban unban IP     - Unban a specific IP"
+        echo "  autoban test IP      - Check if an IP is banned"
+        echo "  autoban top          - Show top repeat offenders"
+        echo "  autoban flush        - Remove all bans"
+        ;;
+    ban)
+        ip="${2:-}"
+        if [[ -z "$ip" ]]; then
+            echo "Usage: $0 ban <IP>"
+            exit 1
+        fi
+        if ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid IP address: $ip"
+            exit 1
+        fi
+        if $IPSET test "$IPSET_NAME" "$ip" 2>/dev/null; then
+            echo "$ip is already banned."
+        elif $IPSET add "$IPSET_NAME" "$ip" timeout "$BAN_DURATION" 2>/dev/null; then
+            echo "$(date '+%Y-%m-%d %H:%M:%S') BANNED $ip (manual, duration=${BAN_DURATION}s)" | tee -a "$BAN_LOG"
+        else
+            echo "Failed to ban $ip. Is the ipset '$IPSET_NAME' created?"
+            exit 1
         fi
         ;;
     list)
@@ -78,7 +108,7 @@ case "${1:-summary}" in
         grep "BANNED" "$BAN_LOG" 2>/dev/null | awk '{print $3}' | sort | uniq -c | sort -rn | head -20
         ;;
     *)
-        echo "Usage: $0 {summary|list|unban IP|flush|test IP|top}"
+        echo "Usage: $0 {summary|list|ban IP|unban IP|flush|test IP|top}"
         exit 1
         ;;
 esac
