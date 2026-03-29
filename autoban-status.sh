@@ -8,6 +8,7 @@
 #   autoban-status.sh flush        - Remove ALL bans (use with caution)
 #   autoban-status.sh test IP      - Check if an IP is currently banned
 #   autoban-status.sh top          - Show top offenders from log
+#   autoban-status.sh reinstall DIR- Reinstall from source dir (preserves bans)
 
 set -euo pipefail
 
@@ -34,13 +35,14 @@ case "${1:-summary}" in
         fi
         echo ""
         echo "Usage:"
-        echo "  autoban              - Show this summary"
-        echo "  autoban list         - List all banned IPs"
-        echo "  autoban ban IP       - Manually ban an IP"
-        echo "  autoban unban IP     - Unban a specific IP"
-        echo "  autoban test IP      - Check if an IP is banned"
-        echo "  autoban top          - Show top repeat offenders"
-        echo "  autoban flush        - Remove all bans"
+        echo "  autoban                    - Show this summary"
+        echo "  autoban list               - List all banned IPs"
+        echo "  autoban ban IP             - Manually ban an IP"
+        echo "  autoban unban IP           - Unban a specific IP"
+        echo "  autoban test IP            - Check if an IP is banned"
+        echo "  autoban top                - Show top repeat offenders"
+        echo "  autoban flush              - Remove all bans"
+        echo "  autoban reinstall DIR      - Reinstall from source (preserves bans)"
         ;;
     ban)
         ip="${2:-}"
@@ -107,8 +109,67 @@ case "${1:-summary}" in
         echo "=== Top 20 offenders (from ban log) ==="
         grep "BANNED" "$BAN_LOG" 2>/dev/null | awk '{print $3}' | sort | uniq -c | sort -rn | head -20
         ;;
+    reinstall)
+        src_dir="${2:-/tmp/autoban}"
+        if [[ ! -d "$src_dir" ]]; then
+            echo "Source directory not found: $src_dir"
+            exit 1
+        fi
+        for f in autoban.sh autoban-status.sh autoban-persist.sh banned.txt; do
+            if [[ ! -f "$src_dir/$f" ]]; then
+                echo "Missing required file: $src_dir/$f"
+                exit 1
+            fi
+        done
+
+        INSTALL_DIR="/etc/autoban"
+
+        echo "=== Reinstalling Autoban ==="
+        echo "Source: $src_dir"
+        echo "Target: $INSTALL_DIR"
+        echo ""
+
+        # Copy scripts and banned URL list
+        echo "[1/4] Updating scripts ..."
+        cp "$src_dir/autoban.sh"         "$INSTALL_DIR/autoban.sh"
+        cp "$src_dir/autoban-persist.sh" "$INSTALL_DIR/autoban-persist.sh"
+        cp "$src_dir/autoban-status.sh"  "$INSTALL_DIR/autoban-status.sh"
+        cp "$src_dir/banned.txt"         "$INSTALL_DIR/banned.txt"
+        chmod +x "$INSTALL_DIR/autoban.sh"
+        chmod +x "$INSTALL_DIR/autoban-persist.sh"
+        chmod +x "$INSTALL_DIR/autoban-status.sh"
+
+        # Preserve whitelist - only copy if it doesn't exist
+        if [[ ! -f "$INSTALL_DIR/whitelist.txt" ]] && [[ -f "$src_dir/whitelist.txt" ]]; then
+            cp "$src_dir/whitelist.txt" "$INSTALL_DIR/whitelist.txt"
+            echo "  Copied initial whitelist"
+        else
+            echo "  Whitelist preserved"
+        fi
+
+        # Ensure symlink is current
+        echo "[2/4] Updating CLI shortcut ..."
+        ln -sf "$INSTALL_DIR/autoban-status.sh" /usr/local/bin/autoban
+
+        # Refresh cron entries
+        echo "[3/4] Refreshing cron ..."
+        CRON_LINE="* * * * * /etc/autoban/autoban.sh >> /var/log/autoban.log 2>&1"
+        PERSIST_LINE="0 */6 * * * /etc/autoban/autoban-persist.sh save >> /var/log/autoban.log 2>&1"
+        REBOOT_LINE="@reboot /etc/autoban/autoban-persist.sh restore >> /var/log/autoban.log 2>&1"
+        (crontab -l 2>/dev/null | grep -v '/etc/autoban/'; echo "$CRON_LINE"; echo "$PERSIST_LINE"; echo "$REBOOT_LINE") | crontab -
+
+        # Show what was preserved
+        echo "[4/4] Verifying ..."
+        if $IPSET list "$IPSET_NAME" &>/dev/null; then
+            total=$($IPSET list "$IPSET_NAME" | grep -c '^[0-9]' 2>/dev/null || echo 0)
+            echo "  ipset intact: $total IPs still banned"
+        fi
+        echo "  Log positions preserved"
+        echo ""
+        echo "=== Reinstall Complete ==="
+        ;;
     *)
-        echo "Usage: $0 {summary|list|ban IP|unban IP|flush|test IP|top}"
+        echo "Usage: $0 {summary|list|ban IP|unban IP|flush|test IP|top|reinstall DIR}"
         exit 1
         ;;
 esac
