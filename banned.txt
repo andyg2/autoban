@@ -173,7 +173,6 @@
 /about2.php
 /abrand.php
 /ac.php
-/account
 /acp.php
 /actuator/env
 /admin.php
@@ -232,7 +231,6 @@
 /api/v1/config
 /api/v1/settings
 /api/v2/.env
-/app.js
 /app.php
 /app/.env
 /app/config/parameters.yml
@@ -253,7 +251,6 @@
 /asd.php
 /aspera/faspex/wp-admin/
 /ass.php
-/asset-manifest.json
 /assets/.env
 /assets/css/index.php
 /asw.php
@@ -294,7 +291,6 @@
 /bengi.php
 /bgymj.php
 /bibil.php
-/billing
 /bk/index.php
 /bless.php
 /bless11.php
@@ -312,7 +308,6 @@
 /bs1.php
 /btx25.php
 /build.php
-/bundle.js
 /buy.php
 /by.php
 /byp.php
@@ -324,7 +319,6 @@
 /cah.php
 /caiij.php
 /callback.php
-/cart
 /cash.php
 /cc13.php
 /ccou.php
@@ -338,7 +332,6 @@
 /cgi-bin/wp-2019.php
 /cgi-bin/xmrlpc.php
 /chati.php
-/checkout
 /chosen.php
 /class.1.php
 /class.php
@@ -403,7 +396,6 @@
 /cxc.php
 /d.php
 /d12.php
-/dashboard
 /database.php
 /database/.env
 /db.php
@@ -423,7 +415,6 @@
 /docker/app/.env
 /docker-compose.yml
 /domains.php
-/donate
 /drhunthq.php
 /dropdown.php
 /e.php
@@ -521,7 +512,6 @@
 /goods.php
 /gptsh.php
 /graphql/.env
-/graphql/api
 /grsiuk.php
 /gssdd.php
 /gtc.php
@@ -546,8 +536,6 @@
 /img//classwithtostring.php
 /img/post.php
 /in.php
-/index.html
-/index.js
 /index/admin.php
 /index/function.php
 /inege.php
@@ -598,13 +586,11 @@
 /mah/function.php
 /mail.php
 /mail/.env
-/main.js
 /makeasmtp.php
 /makeasmtp.php?p=
 /mamzi.php
 /manage/env
 /manager.php
-/manifest.json
 /mar.php
 /mari.php
 /maul.php
@@ -648,7 +634,6 @@
 /old/.env
 /oo.php
 /options.php
-/order
 /ova.php
 /Ov-Simple1.php
 /ox.php
@@ -657,7 +642,6 @@
 /pas2.php
 /pass4.php
 /path.php
-/payment
 /payment/.env
 /phina.php
 /php.php
@@ -665,7 +649,6 @@
 /phpinfo
 /phpinfo.php
 /phpmini.php
-/plans
 /plss3.php
 /plugin.php
 /plugins.php
@@ -674,7 +657,6 @@
 /portal/.env
 /post.php
 /pp.php
-/pricing
 /prod/.env
 /profile.php
 /prv8.php
@@ -693,7 +675,6 @@
 /re.php
 /read.php
 /readme.php
-/register
 /resp.php
 /rest/.env
 /revealability.php
@@ -732,13 +713,10 @@
 /sh.php
 /shell.php
 /shellerr.php
-/shop
 /sid3.php
-/signup
 /simple.php
 /site/.env
 /site/wp-includes/wlwmanifest.xml
-/sitemap.xml
 /sito/wp-includes/wlwmanifest.xml
 /src/.env
 /src/config/.env
@@ -770,7 +748,6 @@
 /sty.php
 /style.php
 /styll.php
-/subscribe
 /swagger.json
 /swagger/index.html
 /swagger/swagger-ui.html
@@ -842,7 +819,6 @@
 /varb.php
 /vaza.php
 /vee.php
-/vendor.js
 /vx.php
 /w.php
 /w2025.php
@@ -882,8 +858,6 @@
 /wp-act.php
 /wp-admin.php
 /wp-admin/a.php
-/wp-admin/about.php
-/wp-admin/admin-ajax.php
 /wp-admin/alfa.php
 /wp-admin/autoload_classmap.php
 /wp-admin/css/
@@ -1092,9 +1066,6 @@
 /wp-includes/theme-compat/
 /wp-includes/widgets/
 /wp-includes/widgets/autoload_classmap.php
-/wp-json/wc/v2/payment_gateways
-/wp-json/wc/v3/payment_gateways
-/wp-json/wc/v3/settings/checkout
 /wp-kd4xalrg7m.php
 /wp-links.php
 /wp-michan.php
