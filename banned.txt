@@ -176,9 +176,7 @@
 /account
 /acp.php
 /actuator/env
-/admin
 /admin.php
-/admin/
 /admin/.env
 /admin/config
 /admin/controller/extension/
