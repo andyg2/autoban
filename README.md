@@ -8,7 +8,7 @@ Built for [HestiaCP](https://hestiacp.com/) multi-domain hosting environments bu
 
 1. A cron job runs `autoban.sh` every minute
 2. It reads only **new** log lines since the last scan (byte-offset tracking per log file)
-3. Each request URL is checked against ~960 known scanner patterns (`banned.txt`) using awk's O(1) hash table lookup
+3. Each request URL is checked against ~1,189 known scanner patterns (`banned.txt`) using awk's O(1) hash table lookup
 4. Any IP that hits **3 or more** banned URLs gets added to an [ipset](https://ipset.netfilter.org/) hash table
 5. A single iptables rule drops all traffic from IPs in the ipset
 6. Bans auto-expire after 24 hours (configurable)
@@ -54,6 +54,7 @@ echo "YOUR.IP.HERE" >> /etc/autoban/whitelist.txt
 autoban                  # Show status summary
 autoban list             # List all currently banned IPs with timeout remaining
 autoban test 1.2.3.4     # Check if a specific IP is banned
+autoban why 1.2.3.4      # Show ban history and matched URLs for an IP
 autoban unban 1.2.3.4    # Manually unban an IP
 autoban top              # Show top repeat offenders from the ban log
 autoban flush            # Remove ALL bans
@@ -68,8 +69,8 @@ tail -f /var/log/autoban.log
 Output looks like:
 
 ```log
-2026-03-28 04:55:01 BANNED 91.92.243.236 (hits=12, duration=86400s)
-2026-03-28 04:56:01 BANNED 141.98.11.239 (hits=5, duration=86400s)
+2026-03-28 04:55:01 BANNED 91.92.243.236 (hits=12, duration=86400s) urls=/.env(5),/.git/config(4),/wp-login.php(3)
+2026-03-28 04:56:01 BANNED 141.98.11.239 (hits=5, duration=86400s) urls=/xmlrpc.php(3),/admin.php(2)
 ```
 
 ## Configuration
@@ -104,7 +105,7 @@ Edit the variables at the top of `/etc/autoban/autoban.sh`:
 echo "/evil-scanner-path.php" >> /etc/autoban/banned.txt
 ```
 
-**The included list** covers ~960 common scanner probes: WordPress exploit paths, shell uploaders, config file probes, debug endpoints, and directory enumeration attempts.
+**The included list** covers ~1,189 common scanner probes: WordPress exploit paths, shell uploaders, config file probes, debug endpoints, and directory enumeration attempts.
 
 ## Log format
 

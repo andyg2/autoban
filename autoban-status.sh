@@ -7,6 +7,7 @@
 #   autoban-status.sh unban IP     - Remove an IP from the ban list
 #   autoban-status.sh flush        - Remove ALL bans (use with caution)
 #   autoban-status.sh test IP      - Check if an IP is currently banned
+#   autoban-status.sh why IP       - Show ban history and matched URLs for an IP
 #   autoban-status.sh top          - Show top offenders from log
 #   autoban-status.sh reinstall DIR- Reinstall from source dir (preserves bans)
 
@@ -40,6 +41,7 @@ case "${1:-summary}" in
         echo "  autoban ban IP             - Manually ban an IP"
         echo "  autoban unban IP           - Unban a specific IP"
         echo "  autoban test IP            - Check if an IP is banned"
+        echo "  autoban why IP             - Show ban history & matched URLs"
         echo "  autoban top                - Show top repeat offenders"
         echo "  autoban flush              - Remove all bans"
         echo "  autoban reinstall DIR      - Reinstall from source (preserves bans)"
@@ -105,6 +107,15 @@ case "${1:-summary}" in
             echo "$ip is NOT banned"
         fi
         ;;
+    why)
+        ip="${2:-}"
+        if [[ -z "$ip" ]]; then
+            echo "Usage: $0 why <IP>"
+            exit 1
+        fi
+        echo "=== Ban history for $ip ==="
+        grep "BANNED $ip " "$BAN_LOG" 2>/dev/null || echo "No ban records found for $ip"
+        ;;
     top)
         echo "=== Top 20 offenders (from ban log) ==="
         grep "BANNED" "$BAN_LOG" 2>/dev/null | awk '{print $3}' | sort | uniq -c | sort -rn | head -20
@@ -169,7 +180,7 @@ case "${1:-summary}" in
         echo "=== Reinstall Complete ==="
         ;;
     *)
-        echo "Usage: $0 {summary|list|ban IP|unban IP|flush|test IP|top|reinstall DIR}"
+        echo "Usage: $0 {summary|list|ban IP|unban IP|flush|test IP|why IP|top|reinstall DIR}"
         exit 1
         ;;
 esac

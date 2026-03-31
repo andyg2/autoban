@@ -102,8 +102,8 @@ for dir in $LOG_DIRS; do
 
             # Check against banned patterns
             if (path in banned) {
-                # $1 = client IP
-                print $1
+                # $1 = client IP, output IP<tab>path
+                print $1 "\t" path
             }
         }' >> "$TMPFILE"
 
@@ -116,7 +116,7 @@ done
 [[ ! -s "$TMPFILE" ]] && exit 0
 
 # --- Count hits per IP, ban those meeting threshold ---
-sort "$TMPFILE" | uniq -c | sort -rn | while IFS= read -r line; do
+cut -f1 "$TMPFILE" | sort | uniq -c | sort -rn | while IFS= read -r line; do
     count=$(echo "$line" | awk '{print $1}')
     ip=$(echo "$line" | awk '{print $2}')
 
@@ -138,8 +138,11 @@ sort "$TMPFILE" | uniq -c | sort -rn | while IFS= read -r line; do
         continue
     fi
 
+    # Collect matched URLs for this IP
+    urls=$(grep -P "^${ip}\t" "$TMPFILE" | cut -f2 | sort | uniq -c | sort -rn | awk '{print $2 "(" $1 ")"}' | paste -sd, -)
+
     # Ban the IP
     if $IPSET add "$IPSET_NAME" "$ip" timeout "$BAN_DURATION" 2>/dev/null; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') BANNED $ip (hits=$count, duration=${BAN_DURATION}s)"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') BANNED $ip (hits=$count, duration=${BAN_DURATION}s) urls=$urls"
     fi
 done
