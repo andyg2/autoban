@@ -16,6 +16,7 @@ set -euo pipefail
 IPSET=$(command -v ipset || echo /sbin/ipset)
 IPTABLES=$(command -v iptables || echo /sbin/iptables)
 IPSET_NAME="autoban"
+SAVE_FILE="/etc/autoban/ipset-autoban.save"
 BAN_LOG="/var/log/autoban.log"
 BAN_DURATION=86400
 
@@ -60,6 +61,7 @@ case "${1:-summary}" in
             echo "$ip is already banned."
         elif $IPSET add "$IPSET_NAME" "$ip" timeout "$BAN_DURATION" 2>/dev/null; then
             echo "$(date '+%Y-%m-%d %H:%M:%S') BANNED $ip (manual, duration=${BAN_DURATION}s)" | tee -a "$BAN_LOG"
+            $IPSET save "$IPSET_NAME" > "$SAVE_FILE" 2>/dev/null || true
         else
             echo "Failed to ban $ip. Is the ipset '$IPSET_NAME' created?"
             exit 1
@@ -81,6 +83,8 @@ case "${1:-summary}" in
         fi
         if $IPSET del "$IPSET_NAME" "$ip" 2>/dev/null; then
             echo "$(date '+%Y-%m-%d %H:%M:%S') UNBANNED $ip (manual)" | tee -a "$BAN_LOG"
+            # Update persist file so the IP doesn't return on restore
+            $IPSET save "$IPSET_NAME" > "$SAVE_FILE" 2>/dev/null || true
         else
             echo "IP $ip was not in the ban list."
         fi
@@ -90,6 +94,7 @@ case "${1:-summary}" in
         if [[ "$confirm" == "yes" ]]; then
             $IPSET flush "$IPSET_NAME"
             echo "$(date '+%Y-%m-%d %H:%M:%S') FLUSHED all bans (manual)" | tee -a "$BAN_LOG"
+            $IPSET save "$IPSET_NAME" > "$SAVE_FILE" 2>/dev/null || true
         else
             echo "Cancelled."
         fi
